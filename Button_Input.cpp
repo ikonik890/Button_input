@@ -24,7 +24,7 @@ void set_led_brightness(uint gpioPin, uint8_t brightness) {
     printf("set LED brightness to  %d\n", brightness);
 }
 
-void handleButtonPress(uint gpio) {
+void handle_button_press(uint gpio) {
     switch (gpio) {
 
         //BTTN1 reduces LED brightness
@@ -61,7 +61,7 @@ void buttons_callback(uint gpio, uint32_t event_mask) {
         printf("button %d pressed!\n", gpio);
         lastButtonFire[gpio] = currentTime;
         
-        handleButtonPress(gpio);
+        handle_button_press(gpio);
     }
 }
 
