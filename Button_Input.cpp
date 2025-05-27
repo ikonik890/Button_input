@@ -24,6 +24,35 @@ void set_led_brightness(uint gpioPin, uint8_t brightness) {
     printf("set LED brightness to  %d\n", brightness);
 }
 
+void handleButtonPress(uint gpio) {
+    switch (gpio) {
+
+        //BTTN1 reduces LED brightness
+        case BTTN1_PIN:
+            if(LED_Brightness)
+                LED_Brightness -= 15;
+        break;
+
+        //BTTN2 increases LED brightness
+        case BTTN2_PIN:
+            if(LED_Brightness < 255)
+                LED_Brightness += 15;
+        break;
+
+        //BTTN3 enables and disables the LED
+        case BTTN3_PIN:
+            LED_Enabled = !LED_Enabled;
+        break;
+    }
+    
+    if(LED_Enabled) {
+        set_led_brightness(LED_PIN, LED_Brightness);
+    } else {
+        set_led_brightness(LED_PIN, 0);
+    }
+}
+
+//Interrupt function to handle signal changes on GPIO pins
 void buttons_callback(uint gpio, uint32_t event_mask) {
     uint32_t currentTime = to_ms_since_boot(get_absolute_time());
 
@@ -31,32 +60,8 @@ void buttons_callback(uint gpio, uint32_t event_mask) {
     if(bounceDelay < currentTime - lastButtonFire[gpio] || currentTime < lastButtonFire[gpio]) {
         printf("button %d pressed!\n", gpio);
         lastButtonFire[gpio] = currentTime;
-
-        switch (gpio) {
-
-            //BTTN1 reduces LED brightness
-            case BTTN1_PIN:
-                if(LED_Brightness)
-                    LED_Brightness -= 15;
-            break;
-
-            //BTTN2 increases LED brightness
-            case BTTN2_PIN:
-                if(LED_Brightness < 255)
-                    LED_Brightness += 15;
-            break;
-
-            //BTTN3 enables and disables the LED
-            case BTTN3_PIN:
-                LED_Enabled = !LED_Enabled;
-            break;
-        }
-
-        if(LED_Enabled) {
-            set_led_brightness(LED_PIN, LED_Brightness);
-        } else {
-            set_led_brightness(LED_PIN, 0);
-        }
+        
+        handleButtonPress(gpio);
     }
 }
 
@@ -76,6 +81,7 @@ void setup() {
     gpio_pull_up(BTTN2_PIN);
     gpio_pull_up(BTTN3_PIN);
 
+    //Enable interrupts for button pins on falling edge
     gpio_set_irq_enabled_with_callback(BTTN1_PIN, GPIO_IRQ_EDGE_FALL, true, buttons_callback);
     gpio_set_irq_enabled(BTTN2_PIN, GPIO_IRQ_EDGE_FALL, true);
     gpio_set_irq_enabled(BTTN3_PIN, GPIO_IRQ_EDGE_FALL, true);
