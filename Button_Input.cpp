@@ -80,6 +80,7 @@ void setup() {
     gpio_set_irq_enabled(BTTN2_PIN, GPIO_IRQ_EDGE_FALL, true);
     gpio_set_irq_enabled(BTTN3_PIN, GPIO_IRQ_EDGE_FALL, true);
 
+    //Set up PWM for LED
     gpio_set_function(LED_PIN, GPIO_FUNC_PWM);
     uint sliceNum = pwm_gpio_to_slice_num(LED_PIN);
     pwm_set_wrap(sliceNum, 255);
